@@ -1,0 +1,202 @@
+//variables & mixins
+@white: #FFFFFF;
+@ltGrey: #EFEFEF;
+@mdGrey: #C0C0C0;
+@dkGrey: #CCCCCC;
+@secondary:#2875C7;
+@dkSecondary: darken(@secondary,10%);
+@ltSecondary: lighten(@secondary,45%);
+@borderColor: @dkGrey;
+@background: @white;
+
+@main-color: #0B3157;
+@second-color: #48C1C2;
+@textColor: #ffffff;
+@weekend-color: #F06543;
+
+.vertical-center {
+  display: flex;
+  justify-content:center;
+  align-items: center;
+}
+
+
+
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+}
+
+.calendar {
+    display: block;
+    background:@white;
+    width: 380px;
+    margin: 0 auto;
+    font-size: 16px;
+    text-align: center;
+
+    header {
+        .vertical-center;
+        color: @white;
+        cursor: default;
+        background-color: @main-color;
+        display: block;
+        font-weight: bold;
+        text-transform: uppercase;
+        user-select: none;
+        
+        .month-display {
+            align-items: center;
+            height: 40px;
+        }
+
+        .month-label { 
+           flex: 1;
+           font-weight: 800;
+           font-size: 1.2em;
+        }
+        .fas{
+            padding-left: 10px;
+            opacity: .5; 
+            cursor: pointer;
+            
+        }
+        .fa-chevron-up {
+            display: none;
+        }
+        .arrow {
+            text-align: center;
+            flex-basis: 15%;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background .2s;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          
+            &:hover {
+                background: @dkSecondary;
+            }
+        }
+        .display-mode{
+            background-color: @main-color;
+            display: none;
+            justify-content:  center;
+            text-align: center;
+            align-items: center;
+            span{
+                text-transform:  none;
+                font-weight:  400;
+                padding: 5px 15px;
+                opacity: 0.5;
+                border: 1px solid rgba( 255, 255, 255, 0.25);
+                border-radius: 30pt;
+                cursor: pointer;
+                &:hover {
+                    background-color: rgba( 255, 255, 255, 0.25);
+                    color: #fff;
+                    opacity: 1;
+                }
+                &:first-child{
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+    .days-container {
+        width: 100%;
+        height: 70%;
+        margin-top: 10px;
+    }
+
+    .day-names {
+        color: @textColor;
+        
+        font-weight: bold;
+        cursor: default;
+        font-weight: 400;
+        
+        .day {
+            cursor: default;
+            opacity: .5;
+            height: 25px;
+            &:hover {
+                background: inherit;
+
+            }    
+        }
+        
+    }
+
+    .week {
+        font-weight: 800;
+        color: @main-color;
+        height: 15%;
+        .day:first-child , .day:last-child{
+            color: @weekend-color;
+            &:hover{
+                color: #fff;
+            }
+        }
+    }
+  
+    .day {
+        .vertical-center;
+        cursor: pointer;
+        transition: all .2s;
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        width: 55px;
+        height: 48px;
+        
+
+        .day-number {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+
+            &:hover {
+                background-color: @second-color;
+                color: @textColor;
+                border-radius: 4px;
+                transition: background-color 0.2s ease-in-out 0s;
+            }
+    
+            
+        }
+
+        &.different-month {
+            visibility: hidden;
+        }
+
+        &.today {
+            .day-number {
+            background-color: @main-color!important;
+            color: @textColor;
+            border: 1px solid @main-color!important;
+            border-radius: 4px;
+            }    
+        }
+
+        &.selected {
+            .day-number {
+            background-color: @second-color;
+            color: @textColor!important;
+            border: 1px solid @second-color;
+            border-radius: 4px;
+            }
+        }
+    }
+    
+}
