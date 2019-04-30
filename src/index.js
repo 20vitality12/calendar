@@ -3,22 +3,23 @@ import { render } from 'react-dom'
 import './css/styles.css'
 import './less/styles.less';
 
+import moment from 'moment';
+  
 class Calendar extends React.Component {
   constructor(props) {
     super(props);
     
     this.state = {
       month: moment(),
-      selected: moment().startOf('day')
+      selected: moment().startOf('day'),
+      isSliderOpened: false
     };
     
     this.previous = this.previous.bind(this);
     this.next = this.next.bind(this);
   }
   previous() {
-    const {
-      month,
-    } = this.state;
+    const { month } = this.state;
   
     this.setState({
       month: month.subtract(1, 'month'),
@@ -27,9 +28,7 @@ class Calendar extends React.Component {
   
 
   next() {
-    const {
-      month,
-    } = this.state;
+    const { month } = this.state;
 
     this.setState({
       month: month.add(1,'month'),
@@ -46,7 +45,7 @@ class Calendar extends React.Component {
   renderWeeks() {
     let weeks = [];
     let done = false;
-    let date = this.state.month.clone().startOf("month").add("w" -1).day("Sunday");
+    let date = this.state.month.clone().startOf("month").add("d" -1).day("Sunday");
     let count = 0;
     let monthIndex = date.month();
 
@@ -73,40 +72,33 @@ class Calendar extends React.Component {
     return weeks;
   };
 
-  slide() {
-    var icon = document.querySelector('.fa-chevron-down');
-    var panel =  document.querySelector('.display-mode');
-    var iconUp = document.querySelector('.fa-chevron-up');
-    var icons = document.getElementsByClassName("fas");
-    for( var i = 0; i < icons.length; i++) {
-      icons[i].addEventListener("click", function() {
-      
-        if (panel.style.display === "flex") {
-          panel.style.display = "none";
-          iconUp.style.display = "none";
-          icon.style.display = "inline-block";
-        } else {
-          panel.style.display = "flex";
-          icon.style.display = "none";
-          iconUp.style.display = "inline-block";
-        }
-      })  
-    }
-    
+  toggleSlider() {
+    this.setState({ isSliderOpened: !this.state.isSliderOpened });
   }
 
   renderMonthLabel() {
-    const {
-      month,
-    } = this.state;
+    const { isSliderOpened, month } = this.state;
 
-    return <span className="month-label">{month.format("MMM")} 
-    <i className="fas fa-chevron-down" onClick={this.slide}></i>
-    <i className="fas fa-chevron-up" onClick={this.slide}></i>
-    </span>;
+    console.log('isSliderOpened', isSliderOpened);
+
+    return <span className="month-label"  >{month.format("MMM")}
+      <i onClick={() => this.toggleSlider()} className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} 
+      onClick={() => this.toggleSlider()} />
+     </span>;
+   }
+  renderDay2Day() {
+    const { selected } = this.state;
+
+    return <span className="currentDate">{selected.format("dddd, D MMMM")}</span>;
+   }
+  
+  renderEvents() {
+    
   }
-
+  
   render() {
+    const { isSliderOpened } = this.state;
+
     return (
       <section className="calendar">
         <header className="header">
@@ -115,14 +107,24 @@ class Calendar extends React.Component {
             {this.renderMonthLabel()}
             <i className="arrow fa fa-angle-right" onClick={this.next}/>
           </div>
-          <div className="row display-mode">
-            <span className="option">This week</span>
-            <span className="option">This month</span>
-          </div>
+          {isSliderOpened &&
+            <div className="row display-mode">
+                <span className="option">This week</span>
+                <span className="option">This month</span>
+            </div>
+          }
           <DayNames />
         </header>
         <div className="days-container">
           {this.renderWeeks()}
+        </div>
+        <div className="events-container">
+          <div className="day2day">
+            {this.renderDay2Day()}
+          </div>
+          <div className="events">
+            {this.renderEvents()}
+          </div>
         </div>
       </section>
     );
@@ -164,8 +166,8 @@ class Week extends React.Component {
           number: date.date(),
           isCurrentMonth: date.month() === month.month(),
           isToday: date.isSame(new Date(), "day"),
-          date: date
-      };
+          date:date
+      }; 
       days.push(
         <Day day={day}
           selected={selected}
@@ -203,7 +205,7 @@ class Day extends React.Component {
       <div 
         key={date.toString()} 
         className={"day" + (isToday ? " today" : "") + (isCurrentMonth ? "" : " different-month") + (date.isSame(selected) ? " selected" : "")} 
-        onClick={()=>select(day)}><div className="day-number">{number}</div>
+        onClick={() => select(day)}><div className="day-number"><span className="">{number}</span></div>
       </div>
     );
   }
