@@ -2,6 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import './css/styles.css'
 import './less/styles.less';
+import App from './cmoponents/App';
 
 import moment from 'moment';
   
@@ -92,8 +93,9 @@ class Calendar extends React.Component {
     return <span className="currentDate">{selected.format("dddd, D MMMM")}</span>;
    }
   
-  renderEvents() {
-    
+   renderToDoList() {
+
+    return <App />
   }
   
   render() {
@@ -123,7 +125,7 @@ class Calendar extends React.Component {
             {this.renderDay2Day()}
           </div>
           <div className="events">
-            {this.renderEvents()}
+            {this.renderToDoList()}
           </div>
         </div>
       </section>
