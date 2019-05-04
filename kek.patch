@@ -1,0 +1,661 @@
+Index: src/cmoponents/App.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/cmoponents/App.js	(revision 1a2c83da25832bbc713fb7a86bb29e77d98b09d1)
++++ src/cmoponents/App.js	(date 1556913770594)
+@@ -1,59 +1,68 @@
+-import React, { Component } from 'react'
++import React, {Component} from 'react'
+ import TodoList from './TodoList'
+ import TodoItems from './TodoItems'
++import {getRandomString} from "../utils/string-utils";
++import moment from 'moment';
+ 
+ class App extends Component {
+-  inputElement = React.createRef()
+-  constructor() {
+-    super()
+-    this.state = {
+-      items: [],
+-      currentItem: {
+-        text: '',
+-        key: '',
+-      },
+-    }
+-  }
+-  deleteItem = key => {
+-    const filteredItems = this.state.items.filter(item => {
+-      return item.key !== key
+-    })
+-    this.setState({
+-      items: filteredItems,
+-    })
+-  }
++    constructor() {
++        super();
++        this.state = {
++            items: [],
++        }
++    }
++
++    get selectedDateString() {
++        const selectedDay = this.props.selectedDay || new Date();
++
++        return moment(selectedDay).toISOString();
++    };
++
++    getNewToDoItem = (text = '') => ({
++        text,
++        key: getRandomString(10),
++        relatedDate: this.selectedDateString
++    });
++
++    deleteItem = (key) => this.setState({
++        items: this.state.items.filter(item => item.key !== key),
++    });
++
++    markDone = (key) => this.setState({
++        items: this.state.items.map(item => item.key === key
++            ? {...item, isDone: true}
++            : item),
++    });
+ 
+-  handleInput = e => {
+-    const itemText = e.target.value
+-    const currentItem = { text: itemText, key: Date.now() }
+-    this.setState({
+-      currentItem,
+-    })
+-  }
+-  addItem = e => {
+-    e.preventDefault()
+-    const newItem = this.state.currentItem
+-    if (newItem.text !== '') {
+-      const items = [...this.state.items, newItem]
+-      this.setState({
+-        items: items,
+-        currentItem: { text: '', key: '' },
+-      })
+-    }
+-  }
+-  render() {
+-    return (
+-      <div className="App">
+-        <TodoList
+-          addItem={this.addItem}
+-          inputElement={this.inputElement}
+-          handleInput={this.handleInput}
+-          currentItem={this.state.currentItem}
+-        />
+-        <TodoItems entries={this.state.items} deleteItem={this.deleteItem} />
+-      </div>
+-    )
+-  }
++    handleInput = e => {
++        const itemText = e.target.value;
++        const currentItem = {text: itemText, key: Date.now()};
++        this.setState({
++            currentItem,
++        })
++    };
++
++    addItem = (text) => this.setState({
++        items: [
++            ...this.state.items,
++            this.getNewToDoItem(text)
++        ],
++    });
++
++    render() {
++        const itemsToRender = this.state.items.filter((i) => i.relatedDate === this.selectedDateString);
++
++        return (
++            <div className="App">
++                <TodoList
++                    addItem={this.addItem}
++                    handleInput={this.handleInput}
++                    currentItem={this.state.currentItem}
++                />
++                <TodoItems entries={itemsToRender} deleteItem={this.deleteItem} markDone={this.markDone}/>
++            </div>
++        )
++    }
+ }
+ 
+ export default App
+Index: src/cmoponents/TodoList.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/cmoponents/TodoList.js	(revision 1a2c83da25832bbc713fb7a86bb29e77d98b09d1)
++++ src/cmoponents/TodoList.js	(date 1556913854201)
+@@ -1,26 +1,38 @@
+-import React, { Component } from 'react'
++import React, {Component} from 'react'
+ 
+ class TodoList extends Component {
+-  componentDidUpdate() {
+-    this.props.inputElement.current.focus()
+-  }
+-  render() {
+-    return (
+-      <div className="todoListMain">
+-        <div className="header">
+-          <form onSubmit={this.props.addItem}>
+-            <input
+-              placeholder="Task"
+-              ref={this.props.inputElement}
+-              value={this.props.currentItem.text}
+-              onChange={this.props.handleInput}
+-            />
+-            <button type="submit"> Add Task </button>
+-          </form>
+-        </div>
+-      </div>
+-    )
+-  }
++    inputElement = React.createRef();
++
++    componentDidUpdate() {
++        this.inputElement.current.focus()
++    }
++
++    onSubmit = (e) => {
++        e.preventDefault();
++        e.stopPropagation();
++
++        const newItemText = this.inputElement.current.value;
++
++        if (newItemText) {
++            this.props.addItem(newItemText);
++        }
++    };
++
++    render() {
++        return (
++            <div className="todoListMain">
++                <div className="header">
++                    <form onSubmit={this.onSubmit}>
++                        <input
++                            placeholder="Task"
++                            ref={this.inputElement}
++                        />
++                        <button type="submit"> Add Task</button>
++                    </form>
++                </div>
++            </div>
++        )
++    }
+ }
+ 
+ export default TodoList
+Index: src/index.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/index.js	(revision 1a2c83da25832bbc713fb7a86bb29e77d98b09d1)
++++ src/index.js	(date 1556913311693)
+@@ -1,216 +1,220 @@
+ import React from 'react'
+-import { render } from 'react-dom'
++import {render} from 'react-dom'
+ import './css/styles.css'
+ import './less/styles.less';
+ import App from './cmoponents/App';
+ 
+ import moment from 'moment';
+-  
++
+ class Calendar extends React.Component {
+-  constructor(props) {
+-    super(props);
+-    
+-    this.state = {
+-      month: moment(),
+-      selected: moment().startOf('day'),
+-      isSliderOpened: false
+-    };
+-    
+-    this.previous = this.previous.bind(this);
+-    this.next = this.next.bind(this);
+-  }
+-  previous() {
+-    const { month } = this.state;
+-  
+-    this.setState({
+-      month: month.subtract(1, 'month'),
+-    });
+-  }
+-  
++    constructor(props) {
++        super(props);
++
++        this.state = {
++            month: moment(),
++            selected: moment().startOf('day'),
++            isSliderOpened: false
++        };
++
++        this.previous = this.previous.bind(this);
++        this.next = this.next.bind(this);
++    }
++
++    previous() {
++        const {month} = this.state;
++
++        this.setState({
++            month: month.subtract(1, 'month'),
++        });
++    }
++
+ 
+-  next() {
+-    const { month } = this.state;
++    next() {
++        const {month} = this.state;
+ 
+-    this.setState({
+-      month: month.add(1,'month'),
+-    });
+-  }
+-  
+-  select(day) {
+-    this.setState({
+-      selected: day.date,
+-      month: day.date.clone(),
+-    });
+-  }
++        this.setState({
++            month: month.add(1, 'month'),
++        });
++    }
++
++    select(day) {
++        this.setState({
++            selected: day.date,
++            month: day.date.clone(),
++        });
++    }
+ 
+-  renderWeeks() {
+-    let weeks = [];
+-    let done = false;
+-    let date = this.state.month.clone().startOf("month").add("d" -1).day("Sunday");
+-    let count = 0;
+-    let monthIndex = date.month();
++    renderWeeks() {
++        let weeks = [];
++        let done = false;
++        let date = this.state.month.clone().startOf("month").add("d" - 1).day("Sunday");
++        let count = 0;
++        let monthIndex = date.month();
+ 
+-    const {
+-      selected,
+-      month,
+-    } = this.state;
++        const {
++            selected,
++            month,
++        } = this.state;
+ 
+-    while (!done) {
+-      weeks.push(
+-        <Week key={date} 
+-          date={date.clone()} 
+-          month={month} 
+-          select={(day)=>this.select(day)} 
+-          selected={selected} />
+-      );
++        while (!done) {
++            weeks.push(
++                <Week key={date}
++                      date={date.clone()}
++                      month={month}
++                      select={(day) => this.select(day)}
++                      selected={selected}/>
++            );
+ 
+-      date.add(1, "w");
+-      
+-      done = count++ > 2 && monthIndex !== date.month();
+-      monthIndex = date.month();
+-    }
++            date.add(1, "w");
++
++            done = count++ > 2 && monthIndex !== date.month();
++            monthIndex = date.month();
++        }
+ 
+-    return weeks;
+-  };
++        return weeks;
++    };
+ 
+-  toggleSlider() {
+-    this.setState({ isSliderOpened: !this.state.isSliderOpened });
+-  }
++    toggleSlider() {
++        this.setState({isSliderOpened: !this.state.isSliderOpened});
++    }
+ 
+-  renderMonthLabel() {
+-    const { isSliderOpened, month } = this.state;
++    renderMonthLabel() {
++        const {isSliderOpened, month} = this.state;
+ 
+-    console.log('isSliderOpened', isSliderOpened);
++        console.log('isSliderOpened', isSliderOpened);
+ 
+-    return <span className="month-label"  >{month.format("MMM")}
+-      <i onClick={() => this.toggleSlider()} className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} 
+-      onClick={() => this.toggleSlider()} />
++        return <span className="month-label">{month.format("MMM")}
++            <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
++               onClick={() => this.toggleSlider()}/>
+      </span>;
+-   }
+-  renderDay2Day() {
+-    const { selected } = this.state;
++    }
++
++    renderDay2Day() {
++        const {selected} = this.state;
+ 
+-    return <span className="currentDate">{selected.format("dddd, D MMMM")}</span>;
+-   }
+-  
+-   renderToDoList() {
++        return <span className="currentDate">{selected.format("dddd, D MMMM")}</span>;
++    }
++
++    renderToDoList() {
++        const { selected } = this.state;
+ 
+-    return <App />
+-  }
+-  
+-  render() {
+-    const { isSliderOpened } = this.state;
++        return <App selectedDay={selected}/>
++    }
++
++    render() {
++        const {isSliderOpened} = this.state;
+ 
+-    return (
+-      <section className="calendar">
+-        <header className="header">
+-          <div className="month-display row">
+-            <i className="arrow fa fa-angle-left" onClick={this.previous}/>
+-            {this.renderMonthLabel()}
+-            <i className="arrow fa fa-angle-right" onClick={this.next}/>
+-          </div>
+-          {isSliderOpened &&
+-            <div className="row display-mode">
+-                <span className="option">This week</span>
+-                <span className="option">This month</span>
+-            </div>
+-          }
+-          <DayNames />
+-        </header>
+-        <div className="days-container">
+-          {this.renderWeeks()}
+-        </div>
+-        <div className="events-container">
+-          <div className="day2day">
+-            {this.renderDay2Day()}
+-          </div>
+-          <div className="events">
+-            {this.renderToDoList()}
+-          </div>
+-        </div>
+-      </section>
+-    );
+-  }
++        return (
++            <section className="calendar">
++                <header className="header">
++                    <div className="month-display row">
++                        <i className="arrow fa fa-angle-left" onClick={this.previous}/>
++                        {this.renderMonthLabel()}
++                        <i className="arrow fa fa-angle-right" onClick={this.next}/>
++                    </div>
++                    {isSliderOpened &&
++                    <div className="row display-mode">
++                        <span className="option">This week</span>
++                        <span className="option">This month</span>
++                    </div>
++                    }
++                    <DayNames/>
++                </header>
++                <div className="days-container">
++                    {this.renderWeeks()}
++                </div>
++                <div className="events-container">
++                    <div className="day2day">
++                        {this.renderDay2Day()}
++                    </div>
++                    <div className="events">
++                        {this.renderToDoList()}
++                    </div>
++                </div>
++            </section>
++        );
++    }
+ }
+ 
+ class DayNames extends React.Component {
+     render() {
+         return (
+-          <div className="row day-names">
+-            <span className="day">S</span>
+-            <span className="day">M</span>
+-            <span className="day">T</span>
+-            <span className="day">W</span>
+-            <span className="day">T</span>
+-            <span className="day">F</span>
+-            <span className="day">S</span>
+-          </div>
++            <div className="row day-names">
++                <span className="day">S</span>
++                <span className="day">M</span>
++                <span className="day">T</span>
++                <span className="day">W</span>
++                <span className="day">T</span>
++                <span className="day">F</span>
++                <span className="day">S</span>
++            </div>
+         );
+     }
+ }
+ 
+ class Week extends React.Component {
+-  render() {
+-    let days = [];
+-    let {
+-      date,
+-    } = this.props;
+-    
+-    const {
+-      month,
+-      selected,
+-      select,
+-    } = this.props;
++    render() {
++        let days = [];
++        let {
++            date,
++        } = this.props;
++
++        const {
++            month,
++            selected,
++            select,
++        } = this.props;
+ 
+-    for (var i = 0; i < 7; i++) {
+-      let day = {
+-          name: date.format("dd").substring(0, 1),
+-          number: date.date(),
+-          isCurrentMonth: date.month() === month.month(),
+-          isToday: date.isSame(new Date(), "day"),
+-          date:date
+-      }; 
+-      days.push(
+-        <Day day={day}
+-          selected={selected}
+-          select={select}/>
+-      );
++        for (var i = 0; i < 7; i++) {
++            let day = {
++                name: date.format("dd").substring(0, 1),
++                number: date.date(),
++                isCurrentMonth: date.month() === month.month(),
++                isToday: date.isSame(new Date(), "day"),
++                date: date
++            };
++            days.push(
++                <Day day={day}
++                     selected={selected}
++                     select={select}/>
++            );
+ 
+-      date = date.clone();
+-      date.add(1, "day");
+-    }
++            date = date.clone();
++            date.add(1, "day");
++        }
+ 
+-    return (
+-      <div className="row week" key={days[0]}>
+-        {days}
+-      </div>
+-    );
+-  }
++        return (
++            <div className="row week" key={days[0]}>
++                {days}
++            </div>
++        );
++    }
+ 
+ }
+ 
+ class Day extends React.Component {
+-  render() {
+-    const {
+-      day,
+-      day: {
+-        date,
+-        isCurrentMonth,
+-        isToday,
+-        number
+-      },
+-      select,
+-      selected
+-    } = this.props;
++    render() {
++        const {
++            day,
++            day: {
++                date,
++                isCurrentMonth,
++                isToday,
++                number
++            },
++            select,
++            selected
++        } = this.props;
+ 
+-    return (
+-      <div 
+-        key={date.toString()} 
+-        className={"day" + (isToday ? " today" : "") + (isCurrentMonth ? "" : " different-month") + (date.isSame(selected) ? " selected" : "")} 
+-        onClick={() => select(day)}><div className="day-number"><span className="">{number}</span></div>
+-      </div>
+-    );
+-  }
++        return (
++            <div
++                key={date.toString()}
++                className={"day" + (isToday ? " today" : "") + (isCurrentMonth ? "" : " different-month") + (date.isSame(selected) ? " selected" : "")}
++                onClick={() => select(day)}>
++                <div className="day-number"><span className="">{number}</span></div>
++            </div>
++        );
++    }
+ }
+ 
+ render(<Calendar/>, document.getElementById('app'))
+\ No newline at end of file
+Index: src/cmoponents/TodoItems.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/cmoponents/TodoItems.js	(revision 1a2c83da25832bbc713fb7a86bb29e77d98b09d1)
++++ src/cmoponents/TodoItems.js	(date 1556911570984)
+@@ -3,14 +3,17 @@
+ class TodoItems extends Component {
+   createTasks = item => {
+     return (
+-      <li key={item.key} onClick={() => this.props.deleteItem(item.key)}>
++      <li key={item.key} className={item.isDone ? 'line-through' : ''}>
+         {item.text}
++          <button onClick={()=>this.props.deleteItem(item.key)}>Delete</button>
++          <button onClick={()=>this.props.markDone(item.key)}>Done</button>
+       </li>
+     )
+-  }
++  };
++
+   render() {
+-    const todoEntries = this.props.entries
+-    const listItems = todoEntries.map(this.createTasks)
++    const todoEntries = this.props.entries;
++    const listItems = todoEntries.map(this.createTasks);
+ 
+     return <ul className="theList">{listItems}</ul>
+   }
+Index: src/less/styles.less
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/less/styles.less	(revision 1a2c83da25832bbc713fb7a86bb29e77d98b09d1)
++++ src/less/styles.less	(date 1556911571012)
+@@ -224,5 +224,8 @@
+         }
+         
+     }
+-    
++
++    .line-through{
++        text-decoration: line-through;
++    }
+ }
+\ No newline at end of file
+Index: src/utils/string-utils.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/utils/string-utils.js	(date 1556912448945)
++++ src/utils/string-utils.js	(date 1556912448945)
+@@ -0,0 +1,9 @@
++export const getRandomString = (length) => {
++    let result = '';
++    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
++    const charactersLength = characters.length;
++    for (let i = 0; i < length; i++) {
++        result += characters.charAt(Math.floor(Math.random() * charactersLength));
++    }
++    return result;
++}
+\ No newline at end of file

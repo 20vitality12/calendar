@@ -1,59 +1,68 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import TodoList from './TodoList'
 import TodoItems from './TodoItems'
+import {getRandomString} from "../utils/string-utils";
+import moment from 'moment';
 
 class App extends Component {
-  inputElement = React.createRef()
-  constructor() {
-    super()
-    this.state = {
-      items: [],
-      currentItem: {
-        text: '',
-        key: '',
-      },
+    constructor() {
+        super();
+        this.state = {
+            items: [],
+        }
     }
-  }
-  deleteItem = key => {
-    const filteredItems = this.state.items.filter(item => {
-      return item.key !== key
-    })
-    this.setState({
-      items: filteredItems,
-    })
-  }
 
-  handleInput = e => {
-    const itemText = e.target.value
-    const currentItem = { text: itemText, key: Date.now() }
-    this.setState({
-      currentItem,
-    })
-  }
-  addItem = e => {
-    e.preventDefault()
-    const newItem = this.state.currentItem
-    if (newItem.text !== '') {
-      const items = [...this.state.items, newItem]
-      this.setState({
-        items: items,
-        currentItem: { text: '', key: '' },
-      })
+    get selectedDateString() {
+        const selectedDay = this.props.selectedDay || new Date();
+
+        return moment(selectedDay).toISOString();
+    };
+
+    getNewToDoItem = (text = '') => ({
+        text,
+        key: getRandomString(10),
+        relatedDate: this.selectedDateString
+    });
+
+    deleteItem = (key) => this.setState({
+        items: this.state.items.filter(item => item.key !== key),
+    });
+
+    markDone = (key) => this.setState({
+        items: this.state.items.map(item => item.key === key
+            ? {...item, isDone: true}
+            : item),
+    });
+
+    handleInput = e => {
+        const itemText = e.target.value;
+        const currentItem = {text: itemText, key: Date.now()};
+        this.setState({
+            currentItem,
+        })
+    };
+
+    addItem = (text) => this.setState({
+        items: [
+            ...this.state.items,
+            this.getNewToDoItem(text)
+        ],
+    });
+
+    render() {
+        const itemsToRender = this.state.items.filter((i) => i.relatedDate === this.selectedDateString);
+
+        return (
+            <div className="App">
+                <TodoList
+                    addItem={this.addItem}
+                    handleInput={this.handleInput}
+                    currentItem={this.state.currentItem}
+                />
+                <TodoItems entries={itemsToRender} deleteItem={this.deleteItem} markDone={this.markDone}/>
+            </div>
+        )
     }
-  }
-  render() {
-    return (
-      <div className="App">
-        <TodoList
-          addItem={this.addItem}
-          inputElement={this.inputElement}
-          handleInput={this.handleInput}
-          currentItem={this.state.currentItem}
-        />
-        <TodoItems entries={this.state.items} deleteItem={this.deleteItem} />
-      </div>
-    )
-  }
 }
 
 export default App
