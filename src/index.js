@@ -1,11 +1,13 @@
 import React from 'react'
-import {render} from 'react-dom'
-import './css/styles.css'
-import './less/styles.less';
-import App from './cmoponents/App';
-
 import moment from 'moment';
+import {render} from 'react-dom'
 
+import './less/styles.less';
+
+import App from './cmoponents/App';
+import DayNames from './cmoponents/DayNames'
+import Weeks from './cmoponents/Weeks'
+import Week from './cmoponents/Week'
 class Calendar extends React.Component {
     constructor(props) {
         super(props);
@@ -26,7 +28,7 @@ class Calendar extends React.Component {
     }
 
     previous() {
-        const {month} = this.state;
+        const { month } = this.state;
 
         this.setState({
             month: month.subtract(1, 'month'),
@@ -34,14 +36,14 @@ class Calendar extends React.Component {
     }
 
     next() {
-        const {month} = this.state;
+        const { month } = this.state;
 
         this.setState({
             month: month.add(1, 'month'),
         });
     }
     previousWeek() {
-        const {week} = this.state;
+        const  {week } = this.state;
 
         this.setState({
             week: week.subtract(1, 'week'),
@@ -49,7 +51,7 @@ class Calendar extends React.Component {
     }
 
     nextWeek() {
-        const {week} = this.state;
+        const  { week } = this.state;
 
         this.setState({
             week: week.add(1, 'week'),
@@ -70,10 +72,7 @@ class Calendar extends React.Component {
         let count = 0;
         let monthIndex = date.month();
 
-        const {
-            selected,
-            month,
-        } = this.state;
+        const { selected, month} = this.state;
 
         while (!done) {
             weeks.push(
@@ -89,7 +88,6 @@ class Calendar extends React.Component {
             done = count++ > 2 && monthIndex !== date.month();
             monthIndex = date.month();
         }
-
         return weeks;
     };
 
@@ -119,7 +117,6 @@ class Calendar extends React.Component {
             done = count++ > 2 && weekIndex !== date.week();
             weekIndex = date.week();
         }
-
         return weeks;
     };
 
@@ -128,16 +125,16 @@ class Calendar extends React.Component {
     }
 
     renderMonthLabel() {
-        const {isSliderOpened, month} = this.state;
+        const { isSliderOpened, month } = this.state;
 
-        return <span className="month-label">{month.format("MMM")}
-            <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
-               onClick={() => this.toggleSlider()}/>
-     </span>;
+        return <span className="month-label">{ month.format("MMM") }
+                <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
+                onClick={() => this.toggleSlider() }/>
+               </span>;
     }
 
     renderDay2Day() {
-        const {selected} = this.state;
+        const { selected } = this.state;
 
         return <span className="currentDate">{selected.format("dddd, D MMMM")}</span>;
     }
@@ -149,13 +146,13 @@ class Calendar extends React.Component {
     }
 
     showThisState() {
-        this.setState({show: !this.state.show});
+        this.setState({ show: !this.state.show });
     }
 
     render() {
-        const {isSliderOpened, show} = this.state;
+        const { isSliderOpened, show } = this.state;
 
-        if( show ) {
+        if(show) {
         return (
             <section className="calendar">
                 <header className="header">
@@ -214,132 +211,6 @@ class Calendar extends React.Component {
                 </section>
             );    
         }
-    }
-}
-
-class DayNames extends React.Component {
-    render() {
-        return (
-            <div className="row day-names">
-                <span className="day">S</span>
-                <span className="day">M</span>
-                <span className="day">T</span>
-                <span className="day">W</span>
-                <span className="day">T</span>
-                <span className="day">F</span>
-                <span className="day">S</span>
-            </div>
-        );
-    }
-}
-
-class Weeks extends React.Component {
-    render() {
-        let days = [];
-        let {
-            date,
-        } = this.props;
-
-        const {
-            month,
-            selected,
-            select
-            
-        } = this.props;
-
-        for (var i = 0; i < 7; i++) {
-            let day = {
-                name: date.format("dd").substring(0, 1),
-                number: date.date(),
-                isCurrentMonth: date.month() === month.month(),
-                isToday: date.isSame(new Date(), "day"),
-                
-                date: date
-            };
-            days.push(
-                <Day day={day}
-                     selected={selected}
-                     select={select}/>
-            );
-
-            date = date.clone();
-            date.add(1, "day");
-        }
-
-        return (
-            <div className="row week" key={days[0]}>
-                {days}
-            </div>
-        );
-    }
-
-}
-
-class Week extends React.Component {
-    render() {
-        let days = [];
-        let {
-            date,
-        } = this.props;
-
-        const {
-            month,
-            week,
-            selected,
-            select
-            
-        } = this.props;
-
-        for (var i = 0; i < 7; i++) {
-            let day = {
-                name: date.format("dd").substring(0, 1),
-                number: date.date(),
-                isCurrentMonth: date.week() === week.week(),
-                isToday: date.isSame(new Date(), "day"),
-                
-                date: date
-            };
-            days.push(
-                <Day day={day}
-                     selected={selected}
-                     select={select}/>
-            );
-
-            date = date.clone();
-            date.add(1, "day");
-        }
-
-        return (
-            <div className="row week" key={days[0]}>
-                {days}
-            </div>
-        );
-    }
-
-}
-
-class Day extends React.Component {
-    render() {
-        const {
-            day,
-            day: {
-                date,
-                isCurrentMonth,
-                isToday,
-                number
-            },
-            select,
-            selected
-        } = this.props;
-
-        return (
-            <div
-                key={date.toString()}
-                className={"day" + (isToday ? " today" : "") + (isCurrentMonth ? "" : " different-month") + (date.isSame(selected) ? " selected" : "")}
-                onClick={() => select(day)}>
-                <div className="day-number"><span className="">{number}</span></div>
-            </div>
-        );
     }
 }
 
