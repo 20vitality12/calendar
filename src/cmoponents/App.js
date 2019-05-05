@@ -51,7 +51,7 @@ class App extends Component {
 
     render() {
         const itemsToRender = this.state.items.filter((i) => i.relatedDate === this.selectedDateString);
-
+        if(itemsToRender > 0);
         return (
             <div className="App">
                 <TodoList
@@ -60,6 +60,7 @@ class App extends Component {
                     currentItem={this.state.currentItem}
                 />
                 <TodoItems entries={itemsToRender} deleteItem={this.deleteItem} markDone={this.markDone}/>
+                
             </div>
         )
     }

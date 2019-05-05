@@ -12,12 +12,17 @@ class Calendar extends React.Component {
 
         this.state = {
             month: moment(),
+            week: moment(),
             selected: moment().startOf('day'),
-            isSliderOpened: false
+            isSliderOpened: false,
+            show: true,
         };
 
         this.previous = this.previous.bind(this);
         this.next = this.next.bind(this);
+        this.previousWeek = this.previousWeek.bind(this);
+        this.nextWeek = this.nextWeek.bind(this);
+        this.showThisState = this.showThisState.bind(this);
     }
 
     previous() {
@@ -33,6 +38,21 @@ class Calendar extends React.Component {
 
         this.setState({
             month: month.add(1, 'month'),
+        });
+    }
+    previousWeek() {
+        const {week} = this.state;
+
+        this.setState({
+            week: week.subtract(1, 'week'),
+        });
+    }
+
+    nextWeek() {
+        const {week} = this.state;
+
+        this.setState({
+            week: week.add(1, 'week'),
         });
     }
 
@@ -57,7 +77,7 @@ class Calendar extends React.Component {
 
         while (!done) {
             weeks.push(
-                <Week key={date}
+                <Weeks key={date}
                       date={date.clone()}
                       month={month}
                       select={(day) => this.select(day)}
@@ -73,14 +93,42 @@ class Calendar extends React.Component {
         return weeks;
     };
 
+    renderWeek() {
+        let weeks = [];
+        let done = false;
+        let date = this.state.week.clone().startOf("week").add("d" - 1).day("Sunday");
+        let count = 0;
+        let weekIndex = date.week();
+
+        const {
+            selected,
+            week,
+        } = this.state;
+
+        while (!done) {
+            weeks.push(
+                <Week key={date}
+                      date={date.clone()}
+                      week={week}
+                      select={(day) => this.select(day)}
+                      selected={selected}/>
+            );
+
+            date.add(1, "w");
+
+            done = count++ > 2 && weekIndex !== date.week();
+            weekIndex = date.week();
+        }
+
+        return weeks;
+    };
+
     toggleSlider() {
         this.setState({isSliderOpened: !this.state.isSliderOpened});
     }
 
     renderMonthLabel() {
         const {isSliderOpened, month} = this.state;
-
-        console.log('isSliderOpened', isSliderOpened);
 
         return <span className="month-label">{month.format("MMM")}
             <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
@@ -100,9 +148,14 @@ class Calendar extends React.Component {
         return <App selectedDay={selected}/>
     }
 
-    render() {
-        const {isSliderOpened} = this.state;
+    showThisState() {
+        this.setState({show: !this.state.show});
+    }
 
+    render() {
+        const {isSliderOpened, show} = this.state;
+
+        if( show ) {
         return (
             <section className="calendar">
                 <header className="header">
@@ -113,8 +166,7 @@ class Calendar extends React.Component {
                     </div>
                     {isSliderOpened &&
                     <div className="row display-mode">
-                        <span className="option">This week</span>
-                        <span className="option">This month</span>
+                        <span className="option" onClick={this.showThisState}>This week / This month</span>
                     </div>
                     }
                     <DayNames/>
@@ -127,11 +179,41 @@ class Calendar extends React.Component {
                         {this.renderDay2Day()}
                     </div>
                     <div className="events">
-                        {this.renderToDoList()}
+                        {this.renderToDoList()} 
                     </div>
                 </div>
             </section>
         );
+        } else {
+            return (
+                <section className="calendar">
+                    <header className="header">
+                        <div className="month-display row">
+                            <i className="arrow fa fa-angle-left" onClick={this.previousWeek}/>
+                            {this.renderMonthLabel()}
+                            <i className="arrow fa fa-angle-right" onClick={this.nextWeek}/>
+                        </div>
+                        {isSliderOpened &&
+                        <div className="row display-mode">
+                            <span className="option" onClick={this.showThisState}>This week / This month</span>
+                        </div>
+                        }
+                        <DayNames/>
+                    </header>
+                    <div className="days-container hide">
+                        {this.renderWeek()}
+                    </div>
+                    <div className="events-container">
+                        <div className="day2day">
+                            {this.renderDay2Day()}
+                        </div>
+                        <div className="events">
+                            {this.renderToDoList()}
+                        </div>
+                    </div>
+                </section>
+            );    
+        }
     }
 }
 
@@ -151,7 +233,7 @@ class DayNames extends React.Component {
     }
 }
 
-class Week extends React.Component {
+class Weeks extends React.Component {
     render() {
         let days = [];
         let {
@@ -161,8 +243,8 @@ class Week extends React.Component {
         const {
             month,
             selected,
-            select,
-            hasEvents
+            select
+            
         } = this.props;
 
         for (var i = 0; i < 7; i++) {
@@ -171,7 +253,50 @@ class Week extends React.Component {
                 number: date.date(),
                 isCurrentMonth: date.month() === month.month(),
                 isToday: date.isSame(new Date(), "day"),
-                hasEvents: ,
+                
+                date: date
+            };
+            days.push(
+                <Day day={day}
+                     selected={selected}
+                     select={select}/>
+            );
+
+            date = date.clone();
+            date.add(1, "day");
+        }
+
+        return (
+            <div className="row week" key={days[0]}>
+                {days}
+            </div>
+        );
+    }
+
+}
+
+class Week extends React.Component {
+    render() {
+        let days = [];
+        let {
+            date,
+        } = this.props;
+
+        const {
+            month,
+            week,
+            selected,
+            select
+            
+        } = this.props;
+
+        for (var i = 0; i < 7; i++) {
+            let day = {
+                name: date.format("dd").substring(0, 1),
+                number: date.date(),
+                isCurrentMonth: date.week() === week.week(),
+                isToday: date.isSame(new Date(), "day"),
+                
                 date: date
             };
             days.push(

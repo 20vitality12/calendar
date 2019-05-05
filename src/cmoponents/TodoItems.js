@@ -3,10 +3,10 @@ import React, { Component } from 'react'
 class TodoItems extends Component {
   createTasks = item => {
     return (
-      <li key={item.key} className={item.isDone ? 'line-through' : ''}>
-        {item.text}
-          <button onClick={()=>this.props.deleteItem(item.key)}>Delete</button>
-          <button onClick={()=>this.props.markDone(item.key)}>Done</button>
+      <li key={item.key}  className={item.isDone ? 'task-li line-through' : 'task-li'}>
+        {item.text} <br></br>
+          <button  className="item-btn" onClick={()=>this.props.deleteItem(item.key)}>Delete</button>
+          <button  className="item-btn" onClick={()=>this.props.markDone(item.key)}>Done</button>
       </li>
     )
   };

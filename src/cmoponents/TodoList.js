@@ -21,13 +21,13 @@ class TodoList extends Component {
     render() {
         return (
             <div className="todoListMain">
-                <div className="header">
+                <div className="header-todo">
                     <form onSubmit={this.onSubmit}>
-                        <input
+                        <input className="input-task" maxLength="80"
                             placeholder="Task"
                             ref={this.inputElement}
                         />
-                        <button type="submit"> Add Task</button>
+                        <button className="btn" type="submit"> Add Task</button>
                     </form>
                 </div>
             </div>
