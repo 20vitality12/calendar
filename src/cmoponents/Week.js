@@ -1,38 +1,44 @@
-import React, { Component } from 'react'
-import Day from './Day'
+import React from "react";
+import Day from "./Day";
+import PropTypes from "prop-types";
+import { Moment } from 'moment';
+export default class Week extends React.Component {
+    static propTypes = {
+        startOfWeek: PropTypes.instanceOf(Moment).isRequired,
+        startOfMonth: PropTypes.instanceOf(Moment),
+        selectedDate: PropTypes.instanceOf(Moment).isRequired,
+        onDaySelect: PropTypes.func.isRequired,
+    };
 
-class Week extends React.Component {
-  render() {
-      let days = [];
-      let { date, } = this.props;
+    render() {
+        let days = [];
 
-      const { week, selected, select } = this.props;
+        const {
+            startOfWeek,
+            selectedDate,
+            onDaySelect,
+            selectedMonth
+        } = this.props;
 
-      for (var i = 0; i < 7; i++) {
-          let day = {
-              name: date.format("dd").substring(0, 1),
-              number: date.date(),
-              isCurrentMonth: date.week() === week.week(),
-              isToday: date.isSame(new Date(), "day"),
-              
-              date: date
-          };
-          days.push(
-              <Day day={day}
-                   selected={selected}
-                   select={select}/>
-          );
+        let currentDate = startOfWeek;
 
-          date = date.clone();
-          date.add(1, "day");
-      }
-
-      return (
-          <div className="row week" key={days[0]}>
-              {days}
-          </div>
-      );
-  }
+        for (let i = 0; i < 7; i++) {
+            days.push(currentDate);
+            currentDate = currentDate.clone();
+            currentDate.add(1, "day");
+        }
+        
+        return (
+            <div className="row week" key={days[0]}>
+                {days.map((day) => (
+                    <Day date={day}
+                         key={day.toISOString()}
+                         isCurrentMonth={selectedMonth ? day.month() === selectedMonth.month() : true}
+                         number={day.date()}
+                         selectedDate={selectedDate}
+                         onDaySelect={onDaySelect}/>
+                ))}
+            </div>
+        );
+    }
 }
-
-export default Week

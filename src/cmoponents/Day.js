@@ -1,28 +1,37 @@
-import React, { Component } from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Moment } from 'moment';
+export default class Day extends React.Component {
+    static propTypes = {
+        date: PropTypes.instanceOf(Moment).isRequired,
+        isCurrentMonth: PropTypes.bool.isRequired,
+        number: PropTypes.number.isRequired,
+        onDaySelect: PropTypes.func.isRequired,
+        selectedDate: PropTypes.instanceOf(Moment).isRequired
+    };
 
-class Day extends React.Component {
-  render() {
-      const {
-          day,
-          day: {
-              date,
-              isCurrentMonth,
-              isToday,
-              number
-          },
-          select,
-          selected
-      } = this.props;
+    render() {
+        const {
+            date,
+            number,
+            onDaySelect,
+            selectedDate,
+            isCurrentMonth
+        } = this.props;
 
-      return (
-          <div
-              key={date.toString()}
-              className={"day" + (isToday ? " today" : "") + (isCurrentMonth ? "" : " different-month") + (date.isSame(selected) ? " selected" : "")}
-              onClick={() => select(day)}>
-              <div className="day-number"><span className="">{number}</span></div>
-          </div>
-      );
-  }
+        const isToday = date.isSame(new Date(), "day");
+        //const hasEvents = 
+        
+        return (
+            <div key={date.toISOString()}
+               className={"day" + (isToday ? " today" : "") 
+               + (isCurrentMonth ? "" : " different-month") 
+               + (date.isSame(selectedDate) ? " selected" : "")}
+                onClick={() => onDaySelect(date)}>
+                <div className="day-number">
+                    <span className="">{number}</span>
+                </div>
+            </div>
+        );
+    }
 }
-
-export default Day
