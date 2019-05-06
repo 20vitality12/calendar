@@ -16,7 +16,8 @@ export default class Calendar extends React.Component {
             show: true,
         };
 
-        this.showThisState = this.showThisState.bind(this);
+        this.showThisStateWeek = this.showThisStateWeek.bind(this);
+        this.showThisStateMonth = this.showThisStateMonth.bind(this);
     }
 
     onPreviousClick = () => this.state.show ? this.previousMonth() : this.previousWeek();
@@ -33,21 +34,19 @@ export default class Calendar extends React.Component {
     onDaySelect = (date) => this.setState({ selectedDate: date, selectedMonth: date.clone() });
 
     renderMonthLabel() {
-      const {isSliderOpened, selectedMonth } = this.state;
-    return <span className="month-label">{selectedMonth.format("MMM")}
-                <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
-                onClick={() => this.toggleSlider()}/>
+        const {isSliderOpened, selectedMonth } = this.state;
+
+        return <span className="month-label">{selectedMonth.format("MMM")}
+                <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} onClick={() => this.toggleSlider()}/>
             </span>;
     }
 
     renderWeekLabel() {
-      const {isSliderOpened, selectedWeek} = this.state;
+        const {isSliderOpened, selectedWeek} = this.state;
 
-      
-      return <span className="month-label">{selectedWeek.format("MMM")}
-          <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
-             onClick={() => this.toggleSlider()}/>
-             </span>;
+        return  <span className="month-label">{selectedWeek.format("MMM")}
+                    <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} onClick={() => this.toggleSlider()}/>
+                </span>;
     }
 
     renderWeeks() {
@@ -76,7 +75,6 @@ export default class Calendar extends React.Component {
             done = count++ > 2 && monthIndex !== date.month();
             monthIndex = date.month();
         }
-
         return weeks;
     };
 
@@ -86,20 +84,17 @@ export default class Calendar extends React.Component {
             selectedWeek,
         } = this.state;
         
-        
-
         return <Week key={selectedWeek.toISOString()}
                      startOfWeek={selectedWeek.clone()}
                      selectedWeek={selectedWeek}
                      onDaySelect={(date) => this.onDaySelect(date)}
-                     selectedDate={selectedDate}/>;
+                     selectedDate={selectedDate}
+                />;
     };
 
     toggleSlider() {
         this.setState({isSliderOpened: !this.state.isSliderOpened});
     }
-
-    
 
     renderDay2Day() {
         const {selectedDate} = this.state;
@@ -113,17 +108,20 @@ export default class Calendar extends React.Component {
         return <ToDoList selectedDate={selectedDate}/>
     }
 
-    showThisState() {
-        this.setState({show: !this.state.show});
+    showThisStateWeek() {
+        this.setState({show: this.state.show = false});
+    }
+    showThisStateMonth() {
+        this.setState({show: this.state.show = true});
     }
 
     renderMonthBtn() {
         const selectedMonth = this.state.selectedMonth;
-        //const x = selectedMonth;
+        
         return  <React.Fragment>
-                    <span className="prev-next" onClick={() => this.onPreviousClick()}>{selectedMonth.subtract(1, "month").format("MMM")}</span>
+                    <span className="prev-next" onClick={() => this.onPreviousClick()}>{selectedMonth.clone().subtract(1, "month").format("MMM")}</span>
                         {this.renderLabel()}
-                    <span className="prev-next" onClick={() => this.onNextClick()}>{selectedMonth.add(1, "month").format("MMM")}</span>
+                    <span className="prev-next" onClick={() => this.onNextClick()}>{selectedMonth.clone().add(1, "month").format("MMM")}</span>
                 </React.Fragment>
     }
 
@@ -147,7 +145,8 @@ export default class Calendar extends React.Component {
                     </div>
                     {isSliderOpened &&
                         <div className="row display-mode">
-                            <span className="option" onClick={this.showThisState}>This week / This month</span>
+                            <span className="option" onClick={this.showThisStateWeek}>This week</span>
+                            <span className="option" onClick={this.showThisStateMonth}>This month</span>
                         </div>
                     }
                     <DayNames/>

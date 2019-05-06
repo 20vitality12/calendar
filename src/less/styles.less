@@ -133,9 +133,7 @@ body {
         height: 15%;
         .day:first-child , .day:last-child{
             color: @weekend-color;
-            &:hover{
-                //color: #fff;
-            }
+            
         }
     }
   
@@ -159,15 +157,7 @@ body {
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
-            &:hover {
-                //background-color: @second-color;
-                //color: @textColor;
-                //border-radius: 4px;
-                //transition: background-color 0.2s ease-in-out 0s;
-                .has-events {
-                    //border-color: #fff;
-                }
-            }
+
             .has-events {
               width: 24px;
               padding-bottom: 2px;
@@ -188,7 +178,7 @@ body {
                 border: 4px solid red;
                 border-radius: 50%;
                 position: absolute;
-                margin-top: -13px;
+                margin-top: -15px;
             }
             border-radius: 4px;
             .hasEvents {
@@ -199,14 +189,10 @@ body {
 
         &.selected {
             .day-number {
-            //background-color: @second-color;
-            //color: @main-color;
-            //border: 1px solid @second-color;
-            //border-radius: 4px;
-            }
-            
-            .hasEvents {
-                border-color: #fff;
+            background-color: @main-color;
+            color: @textColor;
+            border: 1px solid @main-color;
+            border-radius: 4px;
             }
         }
     }
@@ -219,6 +205,7 @@ body {
             text-align: left;
             text-transform: uppercase;
             padding-left: 13px;
+
             .currentDate {
                 font-size: 13pt;
                 font-weight: bold;
@@ -239,6 +226,7 @@ body {
 
 .todoListMain {
     margin-top: 15px;
+
     .input-task{
         padding:  10px 15px;
         background-color: @white;
@@ -247,8 +235,7 @@ body {
         color: grey;
         font-weight: bold;
         outline: none;
-
-        }
+    }
 
     .btn {
         background-color: @main-color;
@@ -260,6 +247,7 @@ body {
         font-family: 'Montserrat', sans-serif;
         padding:  10px 15px;
         margin-left: 10px;
+
         &:hover{
             color: @second-color;
         } 
@@ -277,6 +265,7 @@ body {
     border-radius: 4pt;
     padding: 15px 5px;
     font-weight: bold;
+    
     .item-btn {
         background-color: @main-color;
         border: 1px solid @main-color;
