@@ -43,8 +43,13 @@ body {
         .month-display {
             align-items: center;
             height: 40px;
+            
         }
-
+        .prev-next {
+            color: @second-color;
+            font-size: 14px;
+            padding: 0 10px;
+        }
         .month-label { 
            flex: 1;
            font-weight: bold;
@@ -129,7 +134,7 @@ body {
         .day:first-child , .day:last-child{
             color: @weekend-color;
             &:hover{
-                color: #fff;
+                //color: #fff;
             }
         }
     }
@@ -155,12 +160,12 @@ body {
             align-items: center;
             box-sizing: border-box;
             &:hover {
-                background-color: @second-color;
-                color: @textColor;
-                border-radius: 4px;
-                transition: background-color 0.2s ease-in-out 0s;
+                //background-color: @second-color;
+                //color: @textColor;
+                //border-radius: 4px;
+                //transition: background-color 0.2s ease-in-out 0s;
                 .has-events {
-                    border-color: #fff;
+                    //border-color: #fff;
                 }
             }
             .has-events {
@@ -177,9 +182,14 @@ body {
 
         &.today {
             .day-number {
-            background-color: @main-color!important;
-            color: @textColor;
-            border: 1px solid @main-color!important;
+            //background-color: @main-color!important;
+            //border: 1px solid @main-color!important;
+            .border{
+                border: 4px solid red;
+                border-radius: 50%;
+                position: absolute;
+                margin-top: -13px;
+            }
             border-radius: 4px;
             .hasEvents {
                 border-color: @second-color;
@@ -189,11 +199,12 @@ body {
 
         &.selected {
             .day-number {
-            background-color: @second-color;
-            color: @textColor!important;
-            border: 1px solid @second-color;
-            border-radius: 4px;
+            //background-color: @second-color;
+            //color: @main-color;
+            //border: 1px solid @second-color;
+            //border-radius: 4px;
             }
+            
             .hasEvents {
                 border-color: #fff;
             }
@@ -211,7 +222,6 @@ body {
             .currentDate {
                 font-size: 13pt;
                 font-weight: bold;
-                
                 color: @main-color;
                 letter-spacing: -0.4pt;  
             }    

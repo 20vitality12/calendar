@@ -29,7 +29,7 @@ export default class Day extends React.Component {
                + (date.isSame(selectedDate) ? " selected" : "")}
                 onClick={() => onDaySelect(date)}>
                 <div className="day-number">
-                    <span className="">{number}</span>
+                    <div className="border"></div><span className="">{number}</span>
                 </div>
             </div>
         );

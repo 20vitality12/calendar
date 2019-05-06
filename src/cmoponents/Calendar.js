@@ -34,12 +34,10 @@ export default class Calendar extends React.Component {
 
     renderMonthLabel() {
       const {isSliderOpened, selectedMonth } = this.state;
-
-      
-      return <span className="month-label">{selectedMonth.format("MMM")}
-          <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
-             onClick={() => this.toggleSlider()}/>
-             </span>;
+    return <span className="month-label">{selectedMonth.format("MMM")}
+                <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
+                onClick={() => this.toggleSlider()}/>
+            </span>;
     }
 
     renderWeekLabel() {
@@ -63,7 +61,7 @@ export default class Calendar extends React.Component {
             selectedDate,
             selectedMonth,
         } = this.state;
-
+        
         while (!done) {
             weeks.push(
                 <Week key={date.toISOString()}
@@ -87,6 +85,8 @@ export default class Calendar extends React.Component {
             selectedDate,
             selectedWeek,
         } = this.state;
+        
+        
 
         return <Week key={selectedWeek.toISOString()}
                      startOfWeek={selectedWeek.clone()}
@@ -117,6 +117,25 @@ export default class Calendar extends React.Component {
         this.setState({show: !this.state.show});
     }
 
+    renderMonthBtn() {
+        const selectedMonth = this.state.selectedMonth;
+        //const x = selectedMonth;
+        return  <React.Fragment>
+                    <span className="prev-next" onClick={() => this.onPreviousClick()}>{selectedMonth.subtract(1, "month").format("MMM")}</span>
+                        {this.renderLabel()}
+                    <span className="prev-next" onClick={() => this.onNextClick()}>{selectedMonth.add(1, "month").format("MMM")}</span>
+                </React.Fragment>
+    }
+
+    renderWeekBtn() {
+        
+        return  <React.Fragment>
+                    <span className="prev-next" onClick={() => this.onPreviousClick()}>prev</span>
+                        {this.renderLabel()}
+                    <span className="prev-next" onClick={() => this.onNextClick()}>next</span>
+                </React.Fragment>
+    }
+
     render() {
         const {isSliderOpened, show} = this.state;
 
@@ -124,11 +143,8 @@ export default class Calendar extends React.Component {
             <section className="calendar">
                 <header className="header">
                     <div className="month-display row">
-                        <i className="arrow fa fa-angle-left" onClick={() => this.onPreviousClick()}/>
-                        {this.renderLabel()}
-                        <i className="arrow fa fa-angle-right" onClick={() => this.onNextClick()}/>
+                        {show ? this.renderMonthBtn() : this.renderWeekBtn()}
                     </div>
-
                     {isSliderOpened &&
                         <div className="row display-mode">
                             <span className="option" onClick={this.showThisState}>This week / This month</span>

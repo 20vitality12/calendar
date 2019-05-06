@@ -20,7 +20,7 @@ export default class Week extends React.Component {
             selectedMonth
         } = this.props;
 
-        let currentDate = startOfWeek;
+        let currentDate = startOfWeek.startOf("week").add("d" - 1).day("Sunday");
 
         for (let i = 0; i < 7; i++) {
             days.push(currentDate);
