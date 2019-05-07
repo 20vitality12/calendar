@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Moment } from 'moment';
+
 export default class Day extends React.Component {
     static propTypes = {
         date: PropTypes.instanceOf(Moment).isRequired,
@@ -20,7 +21,7 @@ export default class Day extends React.Component {
         } = this.props;
 
         const isToday = date.isSame(new Date(), "day");
-        //const hasEvents = 
+        
         
         return (
             <div key={date.toISOString()}
