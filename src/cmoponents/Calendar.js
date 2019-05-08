@@ -47,9 +47,9 @@ export default class Calendar extends React.Component {
     renderWeekLabel() {
         const {isSliderOpened, selectedWeek} = this.state;
 
-        return <span className="month-label">{selectedWeek.format("MMM")}
-            <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
-               onClick={() => this.toggleSlider()}/>
+        return  <span className="month-label">{selectedWeek.format("MMMM")}{selectedWeek.startOf("week").format(" D-")}{selectedWeek.endOf("week").format("D")}
+                    <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
+                    onClick={() => this.toggleSlider()}/>
                 </span>;
     }
 
