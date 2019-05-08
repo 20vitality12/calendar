@@ -4,6 +4,8 @@ import {getRandomString} from "../utils/string-utils";
 import TodoItem from "./ToDoItem";
 import PropTypes from 'prop-types';
 
+export const {Provider, Consumer} = React.createContext()
+
 export default class ToDoList extends Component {
     static propTypes = {
         selectedDate: PropTypes.instanceOf(Moment).isRequired
@@ -11,12 +13,11 @@ export default class ToDoList extends Component {
 
     inputElement = React.createRef();
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             items: [],
-        }
-        
+        }  
     }
 
     componentDidUpdate() {
@@ -67,10 +68,13 @@ export default class ToDoList extends Component {
     });
 
     render() {
+        
         const itemsToRender = this.state.items.filter((i) => i.relatedDate === this.selectedDateString);
         
         return (
+            
             <Fragment>
+                <Provider value={{state: this.state}}> {this.props.children}
                 <div className="todoListMain">
                     <div className="header-todo">
                         <form onSubmit={this.onSubmit}>
@@ -89,7 +93,9 @@ export default class ToDoList extends Component {
                                                             markDone={this.markDone}/>)}
                 </ul>
                 }
+                </Provider>
             </Fragment>
+            
         )
     }
 }

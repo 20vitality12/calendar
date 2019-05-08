@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {Component, Fragment} from 'react'
 import PropTypes from 'prop-types';
 import { Moment } from 'moment';
 
+import {Provider, Consumer} from "./ToDoList"
+ 
 export default class Day extends React.Component {
     static propTypes = {
         date: PropTypes.instanceOf(Moment).isRequired,
@@ -24,6 +26,11 @@ export default class Day extends React.Component {
         
         
         return (
+            <Fragment>
+               <Consumer>
+                   {items => items ? <p></p> : <p></p>}
+               </Consumer>
+
             <div key={date.toISOString()}
                className={"day" + (isToday ? " today" : "") 
                + (isCurrentMonth ? "" : " different-month") 
@@ -33,6 +40,9 @@ export default class Day extends React.Component {
                     <div className="border"></div><span className="">{number}</span>
                 </div>
             </div>
+            
+            </Fragment>
+            
         );
     }
 }
