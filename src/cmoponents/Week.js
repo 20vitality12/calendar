@@ -1,12 +1,12 @@
 import React from "react";
 import Day from "./Day";
 import PropTypes from "prop-types";
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 export default class Week extends React.Component {
     static propTypes = {
-        startOfWeek: PropTypes.instanceOf(Moment).isRequired,
-        startOfMonth: PropTypes.instanceOf(Moment),
-        selectedDate: PropTypes.instanceOf(Moment).isRequired,
+        startOfWeek: PropTypes.instanceOf(moment).isRequired,
+        startOfMonth: PropTypes.instanceOf(moment),
+        selectedDate: PropTypes.instanceOf(moment).isRequired,
         onDaySelect: PropTypes.func.isRequired,
     };
 

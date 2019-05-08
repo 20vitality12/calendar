@@ -1,16 +1,15 @@
-import React, {Component, Fragment} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types';
-import { Moment } from 'moment';
-
-import {Provider, Consumer} from "./ToDoList"
+import {ToDoItemsConsumer} from "./ToDoItemsContext";
+import moment from "moment";
  
 export default class Day extends React.Component {
     static propTypes = {
-        date: PropTypes.instanceOf(Moment).isRequired,
+        date: PropTypes.instanceOf(moment).isRequired,
         isCurrentMonth: PropTypes.bool.isRequired,
         number: PropTypes.number.isRequired,
         onDaySelect: PropTypes.func.isRequired,
-        selectedDate: PropTypes.instanceOf(Moment).isRequired
+        selectedDate: PropTypes.instanceOf(moment).isRequired
     };
 
     render() {
@@ -26,23 +25,26 @@ export default class Day extends React.Component {
         
         
         return (
-            <Fragment>
-               <Consumer>
-                   {items => items ? <p></p> : <p></p>}
-               </Consumer>
+            <ToDoItemsConsumer>
+                {({ state, actions }) => {
+                    const itemsOnDate = state.filter((i) => i.relatedDate === actions.getToDoItemRelatedDateFromMoment(date));
 
-            <div key={date.toISOString()}
-               className={"day" + (isToday ? " today" : "") 
-               + (isCurrentMonth ? "" : " different-month") 
-               + (date.isSame(selectedDate) ? " selected" : "")}
-                onClick={() => onDaySelect(date)}>
-                <div className="day-number">
-                    <div className="border"></div><span className="">{number}</span>
-                </div>
-            </div>
-            
-            </Fragment>
-            
+                    const todoItemsCount = itemsOnDate.length;
+
+                    return (
+                        <div key={date.toISOString()}
+                             className={"day" + (isToday ? " today" : "")
+                             + (isCurrentMonth ? "" : " different-month")
+                             + (date.isSame(selectedDate) ? " selected" : "")}
+                             onClick={() => onDaySelect(date)}>
+                            <div className="day-number">
+                                <div className="border"></div><span className={(todoItemsCount ? " has-events" : "")}>{number} </span>
+                            </div>
+                        </div>
+                    );
+                }}
+            </ToDoItemsConsumer>
+
         );
     }
 }

@@ -1,8 +1,9 @@
-import React from "react";
+import React, {Fragment} from "react";
 import moment from "moment";
-import ToDoList from "./ToDoList";
 import DayNames from "./DayNames";
 import Week from "./Week";
+import ToDoList from "./TodoList";
+import {ToDoItemsProvider} from "./ToDoItemsContext";
 
 export default class Calendar extends React.Component {
     constructor(props) {
@@ -14,6 +15,7 @@ export default class Calendar extends React.Component {
             selectedDate: moment().startOf('day'),
             isSliderOpened: false,
             show: true,
+            toDoItems: []
         };
 
         this.showThisStateWeek = this.showThisStateWeek.bind(this);
@@ -26,26 +28,28 @@ export default class Calendar extends React.Component {
 
     renderLabel = () => this.state.show ? this.renderMonthLabel() : this.renderWeekLabel();
 
-    previousMonth = () => this.setState({ selectedMonth: this.state.selectedMonth.subtract(1, 'month')});
-    nextMonth = () => this.setState({ selectedMonth: this.state.selectedMonth.add(1, 'month')});
-    previousWeek = () => this.setState({ selectedWeek: this.state.selectedWeek.subtract(1, 'week') });
-    nextWeek = () =>  this.setState({ selectedWeek: this.state.selectedWeek.add(1, 'week') });
+    previousMonth = () => this.setState({selectedMonth: this.state.selectedMonth.subtract(1, 'month')});
+    nextMonth = () => this.setState({selectedMonth: this.state.selectedMonth.add(1, 'month')});
+    previousWeek = () => this.setState({selectedWeek: this.state.selectedWeek.subtract(1, 'week')});
+    nextWeek = () => this.setState({selectedWeek: this.state.selectedWeek.add(1, 'week')});
 
-    onDaySelect = (date) => this.setState({ selectedDate: date, selectedMonth: date.clone() });
+    onDaySelect = (date) => this.setState({selectedDate: date, selectedMonth: date.clone()});
 
     renderMonthLabel() {
-        const {isSliderOpened, selectedMonth } = this.state;
+        const {isSliderOpened, selectedMonth} = this.state;
 
         return <span className="month-label">{selectedMonth.format("MMM")}
-                <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} onClick={() => this.toggleSlider()}/>
+            <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
+               onClick={() => this.toggleSlider()}/>
             </span>;
     }
 
     renderWeekLabel() {
         const {isSliderOpened, selectedWeek} = this.state;
 
-        return  <span className="month-label">{selectedWeek.format("MMM")}
-                    <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`} onClick={() => this.toggleSlider()}/>
+        return <span className="month-label">{selectedWeek.format("MMM")}
+            <i className={`fas ${isSliderOpened ? 'fa-chevron-up' : 'fa-chevron-down'}`}
+               onClick={() => this.toggleSlider()}/>
                 </span>;
     }
 
@@ -60,7 +64,7 @@ export default class Calendar extends React.Component {
             selectedDate,
             selectedMonth,
         } = this.state;
-        
+
         while (!done) {
             weeks.push(
                 <Week key={date.toISOString()}
@@ -78,18 +82,18 @@ export default class Calendar extends React.Component {
         return weeks;
     };
 
-   renderWeek() {
+    renderWeek() {
         const {
             selectedDate,
             selectedWeek,
         } = this.state;
-        
+
         return <Week key={selectedWeek.toISOString()}
                      startOfWeek={selectedWeek.clone()}
                      selectedWeek={selectedWeek}
                      onDaySelect={(date) => this.onDaySelect(date)}
                      selectedDate={selectedDate}
-                />;
+        />;
     };
 
     toggleSlider() {
@@ -111,27 +115,49 @@ export default class Calendar extends React.Component {
     showThisStateWeek() {
         this.setState({show: this.state.show = false});
     }
+
     showThisStateMonth() {
         this.setState({show: this.state.show = true});
     }
 
+    deleteToDoItem = (key) => this.setState({
+        toDoItems: this.state.toDoItems.filter(item => item.key !== key),
+    });
+
+    markToDoItemDone = (key) => this.setState({
+        toDoItems: this.state.toDoItems.map(item => item.key === key
+            ? {...item, isDone: true}
+            : item),
+    });
+
+    addToDoItem = (newItem) => this.setState({
+        toDoItems: [
+            ...this.state.toDoItems,
+            newItem
+        ]
+    });
+
+    getToDoItemRelatedDateFromMoment = (momentObj) => moment(momentObj).startOf('day').toISOString();
+
     renderMonthBtn() {
         const selectedMonth = this.state.selectedMonth;
-        
-        return  <React.Fragment>
-                    <span className="prev-next" onClick={() => this.onPreviousClick()}>{selectedMonth.clone().subtract(1, "month").format("MMM")}</span>
-                        {this.renderLabel()}
-                    <span className="prev-next" onClick={() => this.onNextClick()}>{selectedMonth.clone().add(1, "month").format("MMM")}</span>
-                </React.Fragment>
+
+        return <Fragment>
+        <span className="prev-next"
+              onClick={() => this.onPreviousClick()}>{selectedMonth.clone().subtract(1, "month").format("MMM")}</span>
+            {this.renderLabel()}
+            <span className="prev-next"
+                  onClick={() => this.onNextClick()}>{selectedMonth.clone().add(1, "month").format("MMM")}</span>
+        </Fragment>
     }
 
     renderWeekBtn() {
-        
-        return  <React.Fragment>
-                    <span className="prev-next" onClick={() => this.onPreviousClick()}>prev</span>
-                        {this.renderLabel()}
-                    <span className="prev-next" onClick={() => this.onNextClick()}>next</span>
-                </React.Fragment>
+
+        return <React.Fragment>
+            <span className="prev-next" onClick={() => this.onPreviousClick()}>prev</span>
+            {this.renderLabel()}
+            <span className="prev-next" onClick={() => this.onNextClick()}>next</span>
+        </React.Fragment>
     }
 
     render() {
@@ -139,29 +165,39 @@ export default class Calendar extends React.Component {
 
         return (
             <section className="calendar">
-                <header className="header">
-                    <div className="month-display row">
-                        {show ? this.renderMonthBtn() : this.renderWeekBtn()}
-                    </div>
-                    {isSliderOpened &&
+                <ToDoItemsProvider value={{
+                    state: this.state.toDoItems,
+                    actions: {
+                        deleteItem: this.deleteToDoItem,
+                        markDone: this.markToDoItemDone,
+                        addItem: this.addToDoItem,
+                        getToDoItemRelatedDateFromMoment: this.getToDoItemRelatedDateFromMoment
+                    }
+                }}>
+                    <header className="header">
+                        <div className="month-display row">
+                            {show ? this.renderMonthBtn() : this.renderWeekBtn()}
+                        </div>
+                        {isSliderOpened &&
                         <div className="row display-mode">
                             <span className="option" onClick={this.showThisStateWeek}>This week</span>
                             <span className="option" onClick={this.showThisStateMonth}>This month</span>
                         </div>
-                    }
-                    <DayNames/>
-                </header>
-                <div className="days-container">
-                    {show ? this.renderWeeks() : this.renderWeek()}
-                </div>
-                <div className="events-container">
-                    <div className="day2day">
-                        {this.renderDay2Day()}
+                        }
+                        <DayNames/>
+                    </header>
+                    <div className="days-container">
+                        {show ? this.renderWeeks() : this.renderWeek()}
                     </div>
-                    <div className="events">
-                        {this.renderToDoList()}
+                    <div className="events-container">
+                        <div className="day2day">
+                            {this.renderDay2Day()}
+                        </div>
+                        <div className="events">
+                            {this.renderToDoList()}
+                        </div>
                     </div>
-                </div>
+                </ToDoItemsProvider>
             </section>
         );
     }
