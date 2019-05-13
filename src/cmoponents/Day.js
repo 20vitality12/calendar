@@ -38,7 +38,15 @@ export default class Day extends React.Component {
                              + (date.isSame(selectedDate) ? " selected" : "")}
                              onClick={() => onDaySelect(date)}>
                             <div className="day-number">
-                                <div className="border"></div><span className={(todoItemsCount ? " has-events" : "")}>{number} </span>
+                                <div className="border"></div>
+                                <div>
+                                    <span >{number} </span>
+                                </div>
+                                <div className="task-line-container">
+                                    <div className={(todoItemsCount === 1 ? " has-events one-task" : "")}></div>
+                                    <div className={(todoItemsCount === 2 ? " has-events two-task" : "")}></div><div className={(todoItemsCount === 2 ? " has-events two-task" : "")}></div>
+                                    <div className={(todoItemsCount > 2 ? " has-events three-task" : "")}></div><div className={(todoItemsCount > 2 ? " has-events three-task" : "")}></div><div className={(todoItemsCount > 2 ? " has-events three-task" : "")}></div>
+                                </div>
                             </div>
                         </div>
                     );

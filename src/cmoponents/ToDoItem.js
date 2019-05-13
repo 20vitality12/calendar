@@ -15,13 +15,17 @@ class TodoItem extends Component {
     render() {
         const { model, deleteItem, markDone } = this.props;
 
-        return (
+        return [
             <li key={model.key}  className={model.isDone ? 'task-li line-through' : 'task-li'}>
                 {model.text} <br />
-                <button  className="item-btn" onClick={()=>deleteItem(model.key)}>Delete</button>
-                <button  className="item-btn" onClick={()=>markDone(model.key)}>Done</button>
-            </li>
-        );
+                <div className="btn-block">
+                    <button  className="item-btn" onClick={()=>markDone(model.key)}>Done</button>
+                    <button  className="item-btn" onClick={()=>deleteItem(model.key)}>Delete</button>
+                </div>
+                
+            </li>,
+            <hr className="line"/>,
+        ];
     }
 }
 
